@@ -1,0 +1,242 @@
+# Progress Log
+
+## Learnings
+(Patterns discovered during implementation)
+- TypeScript compiled output goes to dist/ folder
+- main.ts imports from ./types (relative path)
+- Use `npm run typecheck` to verify types
+- generateAnswerOptions uses Set to ensure uniqueness, filters valid range (2-18)
+- Use `npx http-server -p 8080` to serve for browser testing
+- Responsive styles use media queries for 768px+ (tablet) and 1024px+ (desktop)
+- Browser caching can cause issues during testing - use cache-busting headers or query strings
+- buttonsDisabled flag prevents multiple rapid clicks during 1s delay
+- localStorage keys: mathGameSessions (array), mathGameProgress (object), mathGameBestScore (number)
+- MAX_SESSIONS = 50 for session history limit
+- localStorage key: mathGameMuted (boolean as string) for sound mute state
+- Web Audio API requires user interaction to start AudioContext (browser autoplay policy)
+- Cache-busting query param on script src helps avoid stale JS during development
+
+---
+
+## Iteration 14 - US-014: Add start screen
+- Added start screen HTML with game title, best score display, Play and View Progress buttons
+- Added start screen CSS with centered layout, gradient play button, styled best score display
+- Implemented showStartScreen(), hideStartScreen(), startGame(), setupStartScreenButtons() functions
+- Modified initGame() to show start screen instead of immediately starting game
+- Added cameFromGameOver flag to track navigation context for Back to Game button
+- Updated hideProgressDashboard() and setupBackToGameButton() for proper navigation flow
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - cameFromGameOver flag tracks where user navigated from to return correctly
+  - Best score display shown only if bestScore > 0
+  - Game header and game area start hidden, shown only when Play clicked
+  - Cache-busting query param updated to v=3 on script src
+---
+
+## Iteration 13 - US-013: Add sound effects
+- Added Web Audio API sound system with playTone() base function
+- Implemented playCorrectSound() - ascending two-note chime (C5, E5)
+- Implemented playWrongSound() - gentle low triangle wave buzz
+- Implemented playLevelUpSound() - ascending arpeggio (C5, E5, G5, C6)
+- Implemented playGameOverSound() - soft descending tones (G4, E4, C4)
+- Added mute button (#mute-btn) positioned absolute in top-right corner
+- Implemented toggleMute(), updateMuteButtonUI(), setupMuteButton()
+- Mute state persisted to localStorage with key 'mathGameMuted'
+- Integrated sounds: handleAnswerClick (correct/wrong), handleTimeOut, showLevelUpMessage, showGameOver
+- Added CSS for mute button with hover/active states
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Web Audio oscillator with gain envelope for short, clean tones
+  - AudioContext.state may be 'suspended' until user interaction - call resume()
+  - Mute button uses emoji icons (🔊/🔇) for universal recognition
+  - Script cache-busting via query param (dist/main.js?v=N) essential for testing
+---
+
+## Iteration 12 - US-012: Create progress dashboard view
+- Added progress stats grid with 4 stat boxes (total games, accuracy, best score, day streak)
+- Implemented calculateDayStreak() to track consecutive days played
+- Implemented formatSessionDate() to display friendly date/time format
+- Implemented renderProgressDashboard() to populate all stats and session list
+- Updated showProgressDashboard() to call renderProgressDashboard() before showing
+- Added HTML structure for progress-stats grid with stat-box elements
+- Added sessions-list div for recent sessions display
+- Added CSS for stat-box styling with gradient backgrounds
+- Added CSS for session-row with date, score, accuracy display
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Day streak calculated by checking consecutive dates from most recent play
+  - Only counts as streak if most recent play was today or yesterday
+  - Sessions displayed in reverse chronological order (most recent first)
+  - Playwright browser has persistent caching - may need cache-busting query params during testing
+---
+
+## Iteration 11 - US-011: Persist game sessions to localStorage
+- Added LOCAL_STORAGE_SESSIONS_KEY and LOCAL_STORAGE_PROGRESS_KEY constants
+- Added MAX_SESSIONS = 50 constant
+- Added gameStartTime variable to track session start
+- Implemented getSessions() to load sessions array from localStorage
+- Implemented saveSession() to save session and trim to 50 max
+- Implemented getPlayerProgress() to load progress from localStorage
+- Implemented updatePlayerProgress() to update aggregate stats (totalGames, avgAccuracy, bestScore, recentSessions)
+- Updated loadNextProblem() to set gameStartTime on first problem
+- Updated showGameOver() to create GameSession object and call saveSession/updatePlayerProgress
+- Added validation in avgAccuracy calculation to filter invalid sessions
+- Files changed: src/main.ts, PRD.md
+- Learnings for future iterations:
+  - gameStartTime tracked when totalAttempts === 0 (first problem of game)
+  - Sessions stored as JSON array in localStorage
+  - PlayerProgress.recentSessions mirrors last 10 sessions for quick access
+  - Filter sessions with typeof check when calculating avgAccuracy to handle corrupted data
+---
+
+## Iteration 10 - US-010: Implement game over screen
+- Added View Progress button to game over screen HTML (index.html line 62)
+- Added progress-screen placeholder div with Back to Game button (index.html lines 64-68)
+- Added setupViewProgressButton() function to attach click handler
+- Added showProgressDashboard() function to show progress screen and hide game over screen
+- Added hideProgressDashboard() function for reverse navigation
+- Added setupBackToGameButton() function to attach click handler
+- Updated initGame() to call new setup functions
+- Added CSS styling for #view-progress-btn, #progress-screen, #back-to-game-btn
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Playwright browser can have persistent caching issues during testing
+  - Use curl to verify server-side HTML is correct when browser caching is problematic
+  - Progress dashboard placeholder will be fully implemented in US-012
+---
+
+## Iteration 9 - US-009: Add milestone celebrations
+- Added streak field to GameState type (consecutive correct answers without wrong)
+- Added STREAK_MILESTONE_1 (10) and STREAK_MILESTONE_2 (25) constants
+- Added LOCAL_STORAGE_BEST_SCORE_KEY for high score persistence
+- Implemented getBestScore() and saveBestScore() for localStorage operations
+- Implemented showMilestoneMessage() - displays "Great job!" or "Amazing!" overlay with star burst
+- Implemented showConfetti() - creates 50 CSS confetti pieces with randomized colors/delays
+- Implemented showNewRecordBanner() - displays "New Record!" banner at game end
+- Implemented checkStreakMilestone() - triggers celebrations at 10 and 25 streaks
+- Updated handleAnswerClick to increment streak on correct, reset to 0 on wrong
+- Updated handleTimeOut to reset streak to 0
+- Updated showGameOver to check and display new high score
+- Added HTML elements: #milestone-message, #milestone-stars, #confetti-container, #new-record-banner
+- Added CSS animations: milestone-fade, milestone-bounce, star-burst, confetti-fall, record-pop
+- Files changed: src/types.ts, src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Confetti created dynamically with randomized colors, delays, and durations
+  - Animation reflow trick (offsetHeight) needed to restart animations on repeat triggers
+  - CSS-only confetti uses position:absolute with translateY animation
+  - High score stored in localStorage with simple key-value (no complex object needed)
+---
+
+## Iteration 8 - US-008: Create level progression system
+- Added levelCorrectCount to GameState type to track progress within current level
+- Implemented getTimerDuration() - returns timer based on level (5s base, -0.5s per level, min 2s)
+- Added level progress bar HTML with #level-progress, #level-progress-fill, #level-progress-text
+- Added level-up message overlay with "Level X!" text and fade/scale animations
+- Implemented checkLevelUp() - advances level when levelCorrectCount reaches 10, resets counter
+- Implemented showLevelUpMessage() - displays level up overlay for 2 seconds
+- Updated handleAnswerClick to increment levelCorrectCount and call checkLevelUp on correct answer
+- Updated startTimer() to use getTimerDuration() instead of fixed BASE_TIMER_SECONDS
+- Files changed: src/types.ts, src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Level progress bar uses relative positioning with absolute text overlay
+  - Animation reflow trick (element.offsetHeight) needed to restart CSS animations
+  - Timer duration calculation: Math.max(2, 5 - (level-1)*0.5)
+  - CORRECT_PER_LEVEL constant for level progression threshold
+---
+
+## Iteration 7 - US-007: Add correct/wrong answer animations
+- Added CSS animations for correct answer pulse (scale 1 -> 1.15 -> 1.05)
+- Added CSS shake animation for wrong answer (horizontal translateX ±8px)
+- Added screen-flash overlay div with red fade animation (0.3s)
+- Added floating-score element that floats up and fades (+points text)
+- Added heart-break animation (scale up then shrink to 0.5 with opacity change)
+- Created showFloatingScore(), showScreenFlash(), animateHeartLost() functions in main.ts
+- Updated handleAnswerClick() and handleTimeOut() to trigger animations
+- Reset heart 'lost' class in updateLivesDisplay() for play again functionality
+- Files changed: src/main.ts, styles.css, PRD.md
+- Learnings for future iterations:
+  - Floating score positioned absolutely using getBoundingClientRect() relative to clicked button
+  - Screen flash uses fixed position overlay with pointer-events: none
+  - Heart animation triggered on correct index (gameState.lives after decrement)
+  - CSS animations use forwards to keep final state
+---
+
+## Iteration 6 - US-006: Implement speed bonus scoring
+- Added timer functionality with 5-second base timer
+- Added startTimer(), stopTimer(), handleTimeOut(), calculateSpeedBonus() functions
+- Timer bar HTML added to index.html with timer-bar and timer-fill elements
+- Timer bar CSS with green gradient fill that depletes from right to left
+- Speed bonus: +5 (<=1s), +3 (<=2s), +1 (<=3s), 0 (>3s)
+- Timeout after 5 seconds counts as wrong answer, loses 1 life
+- Timer stopped on answer click and on game over
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - problemStartTime tracks when problem was displayed
+  - timerInterval holds the setInterval ID for cleanup
+  - Timer updates every 50ms for smooth animation
+  - BASE_TIMER_SECONDS constant for future level progression changes
+---
+
+## Iteration 5 - US-005: Add game state management
+- Added totalAttempts increment on every answer
+- Added correctCount increment on correct answers
+- Implemented showGameOver() function displaying final score, level, attempts, accuracy
+- Added hideGameOver() and setupPlayAgainButton() for restart functionality
+- Added game-over-screen HTML with stats and Play Again button
+- Added CSS for .hidden class and game-over-screen styling
+- Files changed: src/main.ts, index.html, styles.css, PRD.md
+- Learnings for future iterations:
+  - Game over screen toggles via .hidden class
+  - Accuracy calculated as (correctCount / totalAttempts) * 100
+  - Play Again resets gameState to initialGameState spread copy
+---
+
+## Iteration 4 - US-004: Implement answer selection handling
+- Added handleAnswerClick() for processing answer selection
+- Added setupAnswerButtons() to attach click listeners
+- currentOptions[] tracks shuffled answers for current problem
+- buttonsDisabled flag prevents clicks during 1s feedback delay
+- Correct: adds 'correct' class (green), score +10
+- Wrong: adds 'wrong' class (red), highlights correct answer, lives -1
+- setTimeout loads next problem after 1 second
+- Files changed: src/main.ts, PRD.md
+- Learnings for future iterations:
+  - Module scope variables (currentOptions, buttonsDisabled) persist state
+  - Event listeners attached once in initGame via setupAnswerButtons
+  - classList.remove('correct', 'wrong') resets styling for new problems
+---
+
+## Iteration 3 - US-003: Create main game UI layout
+- Enhanced styles.css with responsive media queries for tablet (768px+) and desktop (1024px+)
+- Added min-width/min-height to answer buttons for consistent touch targets
+- Updated main.ts with updateUI(), updateLivesDisplay(), loadNextProblem() functions
+- Game now renders actual problems with shuffled answer options on page load
+- Files changed: styles.css, src/main.ts
+- Learnings for future iterations:
+  - updateUI() handles all DOM updates for score, level, problem, and answers
+  - loadNextProblem() generates new problem and calls updateUI()
+  - Hearts opacity changes to show remaining lives
+---
+
+## Iteration 2 - US-002: Implement problem generation
+- Created generateProblem() returning Problem with num1, num2 in range 1-9 and correct answer
+- Created generateAnswerOptions(correctAnswer) returning 4 shuffled unique options
+- Wrong answers are within ±3 of correct answer (offset range -3 to +3, excluding 0)
+- Options filtered to valid sum range (2-18)
+- Files changed: src/main.ts
+- Learnings for future iterations:
+  - Use Set for unique answer options
+  - Shuffle array using sort(() => Math.random() - 0.5)
+---
+
+## Iteration 1 - US-001: Set up project structure and types
+- Created index.html with game container, header (score, level, lives), problem display, and 2x2 answer grid
+- Created src/types.ts with Problem, GameState, GameSession, PlayerProgress interfaces
+- Created src/main.ts with game initialization and initial state
+- Created tsconfig.json and package.json for TypeScript build
+- Created styles.css with basic styling
+- Files changed: index.html, src/types.ts, src/main.ts, tsconfig.json, package.json, styles.css
+- Learnings for future iterations:
+  - Run `npm run typecheck` to verify before marking complete
+  - dist/ is the output folder for compiled JS
+---

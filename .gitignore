@@ -1,0 +1,6 @@
+node_modules/
+dist/
+.playwright-mcp/
+prompt.md
+ralph.sh
+progress.txt

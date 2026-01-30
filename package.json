@@ -1,0 +1,14 @@
+{
+  "name": "math-speed-challenge",
+  "version": "1.0.0",
+  "description": "A math learning game for single-digit addition practice",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.0"
+  }
+}

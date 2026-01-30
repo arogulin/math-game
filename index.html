@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Math Speed Challenge</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="game-container">
+    <button id="mute-btn" aria-label="Mute sounds">🔊</button>
+    <div id="start-screen">
+      <h1 id="game-title">Math Speed Challenge</h1>
+      <p id="best-score-display" class="hidden">Best Score: <span id="start-best-score">0</span></p>
+      <button id="start-play-btn">Play</button>
+      <button id="start-progress-btn">View Progress</button>
+    </div>
+    <div id="game-header" class="hidden">
+      <div id="score-display">Score: <span id="score">0</span></div>
+      <div id="level-display">
+        <div>Level <span id="level">1</span></div>
+        <div id="level-progress">
+          <div id="level-progress-fill"></div>
+          <span id="level-progress-text">0/10</span>
+        </div>
+      </div>
+      <div id="lives-display">
+        <span class="heart">♥</span>
+        <span class="heart">♥</span>
+        <span class="heart">♥</span>
+      </div>
+    </div>
+    <div id="game-area" class="hidden">
+      <div id="timer-bar" class="hidden">
+        <div id="timer-fill"></div>
+      </div>
+      <div id="problem-display">
+        <span id="num1">?</span> + <span id="num2">?</span> = ?
+      </div>
+      <div id="answers-grid">
+        <button class="answer-btn" data-index="0"></button>
+        <button class="answer-btn" data-index="1"></button>
+        <button class="answer-btn" data-index="2"></button>
+        <button class="answer-btn" data-index="3"></button>
+      </div>
+    </div>
+    <div id="level-up-message" class="hidden">
+      <span id="level-up-text">Level 2!</span>
+    </div>
+    <div id="milestone-message" class="hidden">
+      <div id="milestone-text">Great job!</div>
+      <div id="milestone-stars">
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+        <span class="star">★</span>
+      </div>
+    </div>
+    <div id="confetti-container" class="hidden"></div>
+    <div id="new-record-banner" class="hidden">New Record!</div>
+    <div id="game-over-screen" class="hidden">
+      <h2>Game Over!</h2>
+      <p>Final Score: <span id="final-score">0</span></p>
+      <p>Level Reached: <span id="final-level">1</span></p>
+      <p>Problems Attempted: <span id="final-attempts">0</span></p>
+      <p>Accuracy: <span id="final-accuracy">0</span>%</p>
+      <button id="play-again-btn">Play Again</button>
+      <button id="view-progress-btn">View Progress</button>
+    </div>
+    <div id="progress-screen" class="hidden">
+      <h2>Progress Dashboard</h2>
+      <div id="progress-stats">
+        <div class="stat-box">
+          <div class="stat-value" id="stat-total-games">0</div>
+          <div class="stat-label">Games Played</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-accuracy">0%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-best-score">0</div>
+          <div class="stat-label">Best Score</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="stat-day-streak">0</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+      <h3 id="recent-sessions-header">Recent Sessions</h3>
+      <div id="sessions-list"></div>
+      <button id="back-to-game-btn">Back to Game</button>
+    </div>
+  </div>
+  <script type="module" src="dist/main.js?v=3"></script>
+</body>
+</html>
