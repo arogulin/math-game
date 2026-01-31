@@ -163,6 +163,9 @@ function updateUI(): void {
   if (gameState.currentProblem) {
     if (num1El) num1El.textContent = String(gameState.currentProblem.num1);
     if (num2El) num2El.textContent = String(gameState.currentProblem.num2);
+    
+    const answerResultEl = document.getElementById('answer-result');
+    if (answerResultEl) answerResultEl.textContent = '?';
 
     currentOptions = generateAnswerOptions(gameState.currentProblem.answer);
     answerBtns.forEach((btn, index) => {
@@ -277,7 +280,7 @@ function handleTimeOut(): void {
     } else {
       loadNextProblem();
     }
-  }, 1000);
+  }, 3000);
 }
 
 function calculateSpeedBonus(responseTimeMs: number): number {
@@ -474,6 +477,13 @@ function showMilestoneMessage(message: string): void {
   }
 }
 
+function revealAnswer(answer: number): void {
+  const answerResultEl = document.getElementById('answer-result');
+  if (answerResultEl) {
+    answerResultEl.textContent = String(answer);
+  }
+}
+
 function showConfetti(): void {
   const container = document.getElementById('confetti-container');
   if (!container) return;
@@ -559,6 +569,7 @@ function handleAnswerClick(selectedAnswer: number, clickedBtn: HTMLButtonElement
     updateLevelProgress();
     checkLevelUp();
     checkStreakMilestone();
+    revealAnswer(correctAnswer);
   } else {
     clickedBtn.classList.add('wrong');
     gameState.lives -= 1;
@@ -577,13 +588,15 @@ function handleAnswerClick(selectedAnswer: number, clickedBtn: HTMLButtonElement
   const scoreEl = document.getElementById('score');
   if (scoreEl) scoreEl.textContent = String(gameState.score);
 
+  const pauseDuration = isCorrect ? 2000 : 3000;
+
   setTimeout(() => {
     if (gameState.lives <= 0) {
       showGameOver();
     } else {
       loadNextProblem();
     }
-  }, 1000);
+  }, pauseDuration);
 }
 
 function setupAnswerButtons(): void {
