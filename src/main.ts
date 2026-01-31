@@ -42,6 +42,7 @@ let currentOptions: number[] = [];
 let buttonsDisabled = false;
 let problemStartTime: number = 0;
 let timerInterval: number | null = null;
+let pausedTimeRemaining: number = 0;
 const BASE_TIMER_SECONDS = 5;
 const CORRECT_PER_LEVEL = 10;
 const STREAK_MILESTONE_1 = 10;
@@ -221,6 +222,33 @@ function stopTimer(): void {
   }
 }
 
+function resumeTimer(timeRemaining: number): void {
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+
+  const timerBar = document.getElementById('timer-bar');
+  const timerFill = document.getElementById('timer-fill');
+
+  if (timerBar) timerBar.classList.remove('hidden');
+  
+  const remainingMs = timeRemaining * 1000;
+  const resumeStartTime = Date.now();
+
+  timerInterval = window.setInterval(() => {
+    const elapsed = (Date.now() - resumeStartTime) / 1000;
+    const remaining = timeRemaining - elapsed;
+    const percent = Math.max(0, (remaining / timeRemaining) * 100);
+
+    if (timerFill) timerFill.style.width = `${percent}%`;
+
+    if (remaining <= 0) {
+      stopTimer();
+      handleTimeOut();
+    }
+  }, 50);
+}
+
 function handleTimeOut(): void {
   if (buttonsDisabled || !gameState.currentProblem) return;
 
@@ -314,6 +342,14 @@ function showLevelUpMessage(): void {
   const levelUpText = document.getElementById('level-up-text');
 
   if (levelUpEl && levelUpText) {
+    // Pause timer and store remaining time
+    if (timerInterval) {
+      const elapsed = (Date.now() - problemStartTime) / 1000;
+      const timerDuration = getTimerDuration();
+      pausedTimeRemaining = Math.max(0, timerDuration - elapsed);
+      stopTimer();
+    }
+
     levelUpText.textContent = `Level ${gameState.level}!`;
     levelUpEl.classList.remove('hidden');
     levelUpEl.style.animation = 'none';
@@ -323,6 +359,10 @@ function showLevelUpMessage(): void {
 
     setTimeout(() => {
       levelUpEl.classList.add('hidden');
+      // Resume timer with remaining time
+      if (pausedTimeRemaining > 0) {
+        resumeTimer(pausedTimeRemaining);
+      }
     }, 2000);
   }
 }
