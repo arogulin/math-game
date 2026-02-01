@@ -114,18 +114,18 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Add `populateUserSelector()` function to fill dropdown with users
-- [ ] Add event listener for user selector change (update current user, refresh UI)
-- [ ] Add event listener for "New User" button (show create modal)
-- [ ] Add event listener for create modal Cancel button (hide modal)
-- [ ] Add event listener for create modal Create button (validate name, create user, hide modal, refresh selector)
-- [ ] Add event listener for "Delete User" button (show confirm modal with username)
-- [ ] Add event listener for delete modal Cancel button (hide modal)
-- [ ] Add event listener for delete modal Delete button (delete user, switch user if needed, hide modal, refresh selector)
-- [ ] Call `populateUserSelector()` in `initGame()`
-- [ ] Update `showStartScreen()` to refresh user selector and show current user's best score
-- [ ] Run `npm run typecheck` - must pass
-- [ ] Verify user creation, selection, and deletion work in browser
+- [x] Add `populateUserSelector()` function to fill dropdown with users
+- [x] Add event listener for user selector change (update current user, refresh UI)
+- [x] Add event listener for "New User" button (show create modal)
+- [x] Add event listener for create modal Cancel button (hide modal)
+- [x] Add event listener for create modal Create button (validate name, create user, hide modal, refresh selector)
+- [x] Add event listener for "Delete User" button (show confirm modal with username)
+- [x] Add event listener for delete modal Cancel button (hide modal)
+- [x] Add event listener for delete modal Delete button (delete user, switch user if needed, hide modal, refresh selector)
+- [x] Call `populateUserSelector()` in `initGame()`
+- [x] Update `showStartScreen()` to refresh user selector and show current user's best score
+- [x] Run `npm run typecheck` - must pass
+- [x] Verify user creation, selection, and deletion work in browser
 
 ---
 

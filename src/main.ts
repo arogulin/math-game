@@ -958,16 +958,9 @@ function showStartScreen(): void {
   if (gameOverScreen) gameOverScreen.classList.add('hidden');
   if (progressScreen) progressScreen.classList.add('hidden');
 
-  const bestScore = getBestScore();
-  const bestScoreDisplay = document.getElementById('best-score-display');
-  const startBestScore = document.getElementById('start-best-score');
-
-  if (bestScore > 0 && bestScoreDisplay && startBestScore) {
-    startBestScore.textContent = String(bestScore);
-    bestScoreDisplay.classList.remove('hidden');
-  } else if (bestScoreDisplay) {
-    bestScoreDisplay.classList.add('hidden');
-  }
+  // Refresh user selector and best score for current user
+  populateUserSelector();
+  refreshStartScreenBestScore();
 }
 
 function hideStartScreen(): void {
@@ -1010,6 +1003,166 @@ function setupStartScreenButtons(): void {
   }
 }
 
+function populateUserSelector(): void {
+  const dropdown = document.getElementById('user-dropdown') as HTMLSelectElement | null;
+  if (!dropdown) return;
+
+  const users = getUsers();
+  const currentUserId = getCurrentUserId();
+
+  dropdown.innerHTML = '';
+
+  Object.values(users).forEach(user => {
+    const option = document.createElement('option');
+    option.value = user.id;
+    option.textContent = user.name;
+    if (user.id === currentUserId) {
+      option.selected = true;
+    }
+    dropdown.appendChild(option);
+  });
+}
+
+function showCreateUserModal(): void {
+  const modal = document.getElementById('create-user-modal');
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+  if (modal) {
+    modal.classList.remove('hidden');
+    if (nameInput) {
+      nameInput.value = '';
+      nameInput.focus();
+    }
+  }
+}
+
+function hideCreateUserModal(): void {
+  const modal = document.getElementById('create-user-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function showDeleteConfirmModal(): void {
+  const modal = document.getElementById('delete-confirm-modal');
+  const confirmText = document.getElementById('delete-confirm-text');
+  const users = getUsers();
+  const currentUserId = getCurrentUserId();
+  const currentUser = users[currentUserId];
+
+  if (modal && confirmText && currentUser) {
+    confirmText.textContent = `Are you sure you want to delete "${currentUser.name}"? All progress will be lost.`;
+    modal.classList.remove('hidden');
+  }
+}
+
+function hideDeleteConfirmModal(): void {
+  const modal = document.getElementById('delete-confirm-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleCreateUser(): void {
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+  if (!nameInput) return;
+
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.focus();
+    return;
+  }
+
+  const newUser = createUser(name);
+  setCurrentUserId(newUser.id);
+  hideCreateUserModal();
+  populateUserSelector();
+  refreshStartScreenBestScore();
+}
+
+function handleDeleteUser(): void {
+  const currentUserId = getCurrentUserId();
+  const deleted = deleteUser(currentUserId);
+
+  if (deleted) {
+    hideDeleteConfirmModal();
+    populateUserSelector();
+    refreshStartScreenBestScore();
+  }
+}
+
+function refreshStartScreenBestScore(): void {
+  const bestScore = getBestScore();
+  const bestScoreDisplay = document.getElementById('best-score-display');
+  const startBestScore = document.getElementById('start-best-score');
+
+  if (bestScore > 0 && bestScoreDisplay && startBestScore) {
+    startBestScore.textContent = String(bestScore);
+    bestScoreDisplay.classList.remove('hidden');
+  } else if (bestScoreDisplay) {
+    bestScoreDisplay.classList.add('hidden');
+  }
+}
+
+function setupUserSelector(): void {
+  const dropdown = document.getElementById('user-dropdown') as HTMLSelectElement | null;
+  const newUserBtn = document.getElementById('new-user-btn');
+  const deleteUserBtn = document.getElementById('delete-user-btn');
+  const createConfirmBtn = document.getElementById('create-user-confirm-btn');
+  const createCancelBtn = document.getElementById('create-user-cancel-btn');
+  const deleteConfirmBtn = document.getElementById('delete-user-confirm-btn');
+  const deleteCancelBtn = document.getElementById('delete-user-cancel-btn');
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+
+  // User selector change
+  if (dropdown) {
+    dropdown.addEventListener('change', () => {
+      setCurrentUserId(dropdown.value);
+      refreshStartScreenBestScore();
+    });
+  }
+
+  // New User button
+  if (newUserBtn) {
+    newUserBtn.addEventListener('click', showCreateUserModal);
+  }
+
+  // Delete User button
+  if (deleteUserBtn) {
+    deleteUserBtn.addEventListener('click', () => {
+      const users = getUsers();
+      if (Object.keys(users).length <= 1) {
+        return; // Can't delete the last user
+      }
+      showDeleteConfirmModal();
+    });
+  }
+
+  // Create modal - Create button
+  if (createConfirmBtn) {
+    createConfirmBtn.addEventListener('click', handleCreateUser);
+  }
+
+  // Create modal - Cancel button
+  if (createCancelBtn) {
+    createCancelBtn.addEventListener('click', hideCreateUserModal);
+  }
+
+  // Create modal - Enter key on input
+  if (nameInput) {
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleCreateUser();
+      }
+    });
+  }
+
+  // Delete modal - Delete button
+  if (deleteConfirmBtn) {
+    deleteConfirmBtn.addEventListener('click', handleDeleteUser);
+  }
+
+  // Delete modal - Cancel button
+  if (deleteCancelBtn) {
+    deleteCancelBtn.addEventListener('click', hideDeleteConfirmModal);
+  }
+}
+
 function initGame(): void {
   migrateToMultiUser();
   initAudio();
@@ -1019,6 +1172,8 @@ function initGame(): void {
   setupBackToGameButton();
   setupMuteButton();
   setupStartScreenButtons();
+  setupUserSelector();
+  populateUserSelector();
   showStartScreen();
   console.log('Math Speed Challenge initialized');
 }
