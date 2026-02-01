@@ -32,10 +32,10 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Add `User` interface with `id` (string), `name` (string), `createdAt` (number)
-- [ ] Add `UsersMap` type as `Record<string, User>`
-- [ ] Add `LOCAL_STORAGE_USERS_KEY` and `LOCAL_STORAGE_CURRENT_USER_KEY` constants to main.ts
-- [ ] Run `npm run typecheck` - must pass
+- [x] Add `User` interface with `id` (string), `name` (string), `createdAt` (number)
+- [x] Add `UsersMap` type as `Record<string, User>`
+- [x] Add `LOCAL_STORAGE_USERS_KEY` and `LOCAL_STORAGE_CURRENT_USER_KEY` constants to main.ts
+- [x] Run `npm run typecheck` - must pass
 
 ---
 

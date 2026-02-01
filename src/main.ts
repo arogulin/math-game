@@ -52,6 +52,8 @@ const LOCAL_STORAGE_SESSIONS_KEY = 'mathGameSessions';
 const LOCAL_STORAGE_PROGRESS_KEY = 'mathGameProgress';
 const MAX_SESSIONS = 50;
 const LOCAL_STORAGE_MUTE_KEY = 'mathGameMuted';
+const LOCAL_STORAGE_USERS_KEY = 'mathGameUsers';
+const LOCAL_STORAGE_CURRENT_USER_KEY = 'mathGameCurrentUser';
 
 let gameStartTime: number = 0;
 let audioContext: AudioContext | null = null;
