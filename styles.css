@@ -122,6 +122,207 @@ body {
   transform: scale(0.98);
 }
 
+/* User selector */
+#user-selector {
+  margin-bottom: 25px;
+}
+
+#user-dropdown {
+  width: 100%;
+  max-width: 280px;
+  padding: 12px 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: 3px solid #667eea;
+  border-radius: 12px;
+  background: white;
+  color: #4a5568;
+  cursor: pointer;
+  margin-bottom: 12px;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23667eea' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 20px;
+}
+
+#user-dropdown:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+#user-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+#new-user-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #48bb78;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#new-user-btn:hover {
+  transform: scale(1.05);
+  background: #38a169;
+}
+
+#new-user-btn:active {
+  transform: scale(0.98);
+}
+
+#delete-user-btn {
+  padding: 10px 20px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #e53e3e;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#delete-user-btn:hover {
+  transform: scale(1.05);
+  background: #c53030;
+}
+
+#delete-user-btn:active {
+  transform: scale(0.98);
+}
+
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3000;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  font-size: 1.1rem;
+  color: #4a5568;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.modal-content input[type="text"] {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.3rem;
+  border: 3px solid #667eea;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.modal-content input[type="text"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+#create-user-confirm-btn {
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #48bb78;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#create-user-confirm-btn:hover {
+  transform: scale(1.05);
+  background: #38a169;
+}
+
+#create-user-confirm-btn:active {
+  transform: scale(0.98);
+}
+
+#create-user-cancel-btn,
+#delete-user-cancel-btn {
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #a0aec0;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#create-user-cancel-btn:hover,
+#delete-user-cancel-btn:hover {
+  transform: scale(1.05);
+  background: #718096;
+}
+
+#create-user-cancel-btn:active,
+#delete-user-cancel-btn:active {
+  transform: scale(0.98);
+}
+
+#delete-user-confirm-btn {
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  background: #e53e3e;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#delete-user-confirm-btn:hover {
+  transform: scale(1.05);
+  background: #c53030;
+}
+
+#delete-user-confirm-btn:active {
+  transform: scale(0.98);
+}
+
 #game-header {
   display: flex;
   justify-content: space-between;

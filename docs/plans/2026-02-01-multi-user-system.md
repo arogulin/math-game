@@ -97,14 +97,14 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `styles.css`
 
 **Steps:**
-- [ ] Add `user-selector` div to start-screen (above Play button)
-- [ ] Add select dropdown for user selection
-- [ ] Add "New User" button next to dropdown
-- [ ] Add "Delete User" button
-- [ ] Add `create-user-modal` div with name input, Create and Cancel buttons
-- [ ] Add `delete-confirm-modal` div with confirmation message, Delete and Cancel buttons
-- [ ] Style all new elements to match existing large, kid-friendly UI
-- [ ] Verify layout looks correct in browser
+- [x] Add `user-selector` div to start-screen (above Play button)
+- [x] Add select dropdown for user selection
+- [x] Add "New User" button next to dropdown
+- [x] Add "Delete User" button
+- [x] Add `create-user-modal` div with name input, Create and Cancel buttons
+- [x] Add `delete-confirm-modal` div with confirmation message, Delete and Cancel buttons
+- [x] Style all new elements to match existing large, kid-friendly UI
+- [x] Verify layout looks correct in browser
 
 ---
 

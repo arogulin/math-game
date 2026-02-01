@@ -11,6 +11,13 @@
     <button id="mute-btn" aria-label="Mute sounds">🔊</button>
     <div id="start-screen">
       <h1 id="game-title">Math Speed Challenge</h1>
+      <div id="user-selector">
+        <select id="user-dropdown" aria-label="Select player"></select>
+        <div id="user-buttons">
+          <button id="new-user-btn" type="button">New Player</button>
+          <button id="delete-user-btn" type="button">Delete</button>
+        </div>
+      </div>
       <p id="best-score-display" class="hidden">Best Score: <span id="start-best-score">0</span></p>
       <button id="start-play-btn">Play</button>
       <button id="start-progress-btn">View Progress</button>
@@ -91,6 +98,26 @@
       <h3 id="recent-sessions-header">Recent Sessions</h3>
       <div id="sessions-list"></div>
       <button id="back-to-game-btn">Back to Game</button>
+    </div>
+    <div id="create-user-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Create New Player</h2>
+        <input type="text" id="new-user-name" placeholder="Enter player name" maxlength="20" autocomplete="off">
+        <div class="modal-buttons">
+          <button id="create-user-confirm-btn" type="button">Create</button>
+          <button id="create-user-cancel-btn" type="button">Cancel</button>
+        </div>
+      </div>
+    </div>
+    <div id="delete-confirm-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Delete Player?</h2>
+        <p id="delete-confirm-text">Are you sure you want to delete this player? All progress will be lost.</p>
+        <div class="modal-buttons">
+          <button id="delete-user-confirm-btn" type="button">Delete</button>
+          <button id="delete-user-cancel-btn" type="button">Cancel</button>
+        </div>
+      </div>
     </div>
   </div>
   <script type="module" src="dist/main.js?v=3"></script>
