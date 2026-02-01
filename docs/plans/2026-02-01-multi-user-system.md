@@ -61,14 +61,14 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Add `migrateToMultiUser()` function
-- [ ] Check if users already exist (skip migration if present)
-- [ ] Read existing `mathGameBestScore`, `mathGameSessions`, `mathGameProgress`
-- [ ] Create "Player 1" user with migrated data using user-specific keys
-- [ ] Clear old single-user keys after successful migration
-- [ ] Call `migrateToMultiUser()` in `initGame()`
-- [ ] Run `npm run typecheck` - must pass
-- [ ] Verify migration works in browser (check localStorage)
+- [x] Add `migrateToMultiUser()` function
+- [x] Check if users already exist (skip migration if present)
+- [x] Read existing `mathGameBestScore`, `mathGameSessions`, `mathGameProgress`
+- [x] Create "Player 1" user with migrated data using user-specific keys
+- [x] Clear old single-user keys after successful migration
+- [x] Call `migrateToMultiUser()` in `initGame()`
+- [x] Run `npm run typecheck` - must pass
+- [x] Verify migration works in browser (check localStorage)
 
 ---
 

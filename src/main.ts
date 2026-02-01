@@ -129,6 +129,48 @@ function deleteUser(id: string): boolean {
   return true;
 }
 
+function migrateToMultiUser(): void {
+  // Check if users already exist - skip migration if present
+  const existingUsers = getUsers();
+  if (Object.keys(existingUsers).length > 0) {
+    return;
+  }
+
+  // Read existing single-user data
+  const oldBestScore = localStorage.getItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+  const oldSessions = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
+  const oldProgress = localStorage.getItem(LOCAL_STORAGE_PROGRESS_KEY);
+
+  // Create "Player 1" user
+  const userId = `user_${Date.now()}`;
+  const player1: User = {
+    id: userId,
+    name: 'Player 1',
+    createdAt: Date.now(),
+  };
+
+  // Save the new user
+  const users: UsersMap = { [userId]: player1 };
+  saveUsers(users);
+  setCurrentUserId(userId);
+
+  // Migrate data to user-specific keys if old data exists
+  if (oldBestScore !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${userId}`, oldBestScore);
+  }
+  if (oldSessions !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${userId}`, oldSessions);
+  }
+  if (oldProgress !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${userId}`, oldProgress);
+  }
+
+  // Clear old single-user keys after successful migration
+  localStorage.removeItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_SESSIONS_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_PROGRESS_KEY);
+}
+
 let gameStartTime: number = 0;
 let audioContext: AudioContext | null = null;
 let isMuted = false;
@@ -950,6 +992,7 @@ function setupStartScreenButtons(): void {
 }
 
 function initGame(): void {
+  migrateToMultiUser();
   initAudio();
   setupAnswerButtons();
   setupPlayAgainButton();
