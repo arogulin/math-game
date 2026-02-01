@@ -166,13 +166,13 @@ Add multi-user system to the math game, enabling multiple players to have separa
 
 ## Final Verification
 
-- [ ] Create multiple users and verify each has separate stats
-- [ ] Play games with different users and verify scores save separately
-- [ ] Verify leaderboard shows all users sorted by best score
-- [ ] Verify migration works when upgrading from single-user data
-- [ ] Verify cannot delete last remaining user
-- [ ] Run `npm run build` to ensure production build works
-- [ ] Run `npm run typecheck` one final time
+- [x] Create multiple users and verify each has separate stats
+- [x] Play games with different users and verify scores save separately
+- [x] Verify leaderboard shows all users sorted by best score
+- [x] Verify migration works when upgrading from single-user data
+- [x] Verify cannot delete last remaining user
+- [x] Run `npm run build` to ensure production build works
+- [x] Run `npm run typecheck` one final time
 
 ---
 
