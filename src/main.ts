@@ -71,15 +71,12 @@ function saveUsers(users: UsersMap): void {
 }
 
 function getCurrentUserId(): string {
+  const users = getUsers();
   const storedId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
-  if (storedId) {
-    const users = getUsers();
-    if (users[storedId]) {
-      return storedId;
-    }
+  if (storedId && users[storedId]) {
+    return storedId;
   }
   // Return first user ID if none selected or stored ID is invalid
-  const users = getUsers();
   const userIds = Object.keys(users);
   return userIds.length > 0 ? userIds[0] : '';
 }
@@ -116,6 +113,11 @@ function deleteUser(id: string): boolean {
 
   delete users[id];
   saveUsers(users);
+
+  // Clean up user's data from localStorage
+  localStorage.removeItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`);
+  localStorage.removeItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`);
+  localStorage.removeItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`);
 
   // If we deleted the current user, switch to another user
   const currentId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
@@ -1143,11 +1145,21 @@ function renderLeaderboard(): void {
     else if (rank === 2) rowEl.classList.add('rank-2');
     else if (rank === 3) rowEl.classList.add('rank-3');
 
-    rowEl.innerHTML = `
-      <span class="leaderboard-rank">#${rank}</span>
-      <span class="leaderboard-name">${entry.name}</span>
-      <span class="leaderboard-score">${entry.bestScore}</span>
-    `;
+    const rankSpan = document.createElement('span');
+    rankSpan.className = 'leaderboard-rank';
+    rankSpan.textContent = `#${rank}`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'leaderboard-name';
+    nameSpan.textContent = entry.name;
+
+    const scoreSpan = document.createElement('span');
+    scoreSpan.className = 'leaderboard-score';
+    scoreSpan.textContent = String(entry.bestScore);
+
+    rowEl.appendChild(rankSpan);
+    rowEl.appendChild(nameSpan);
+    rowEl.appendChild(scoreSpan);
     leaderboardList.appendChild(rowEl);
   });
 }
