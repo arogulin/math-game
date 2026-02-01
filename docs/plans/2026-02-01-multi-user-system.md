@@ -156,11 +156,11 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `index.html`
 
 **Steps:**
-- [ ] Update progress-screen to show current username in header
-- [ ] Update `renderProgressDashboard()` to load stats for current user only
-- [ ] Update `calculateDayStreak()` to use current user's sessions
-- [ ] Verify progress dashboard shows current user's data correctly in browser
-- [ ] Run `npm run typecheck` - must pass
+- [x] Update progress-screen to show current username in header
+- [x] Update `renderProgressDashboard()` to load stats for current user only
+- [x] Update `calculateDayStreak()` to use current user's sessions
+- [x] Verify progress dashboard shows current user's data correctly in browser
+- [x] Run `npm run typecheck` - must pass
 
 ---
 

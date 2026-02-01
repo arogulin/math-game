@@ -883,6 +883,15 @@ function renderProgressDashboard(): void {
   const sessions = getSessions();
   const dayStreak = calculateDayStreak();
 
+  // Update header with current user's name
+  const usernameEl = document.getElementById('progress-username');
+  if (usernameEl) {
+    const users = getUsers();
+    const currentUserId = getCurrentUserId();
+    const currentUser = users[currentUserId];
+    usernameEl.textContent = currentUser ? currentUser.name : 'Player';
+  }
+
   const totalGamesEl = document.getElementById('stat-total-games');
   const accuracyEl = document.getElementById('stat-accuracy');
   const bestScoreEl = document.getElementById('stat-best-score');
