@@ -31,3 +31,11 @@ export interface PlayerProgress {
   bestScore: number;
   recentSessions: GameSession[];
 }
+
+export interface User {
+  id: string;
+  name: string;
+  createdAt: number;
+}
+
+export type UsersMap = Record<string, User>;

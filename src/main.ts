@@ -1,4 +1,4 @@
-import { GameState, GameSession, PlayerProgress, Problem } from './types';
+import { GameState, GameSession, PlayerProgress, Problem, User, UsersMap } from './types';
 
 const initialGameState: GameState = {
   score: 0,
@@ -52,6 +52,126 @@ const LOCAL_STORAGE_SESSIONS_KEY = 'mathGameSessions';
 const LOCAL_STORAGE_PROGRESS_KEY = 'mathGameProgress';
 const MAX_SESSIONS = 50;
 const LOCAL_STORAGE_MUTE_KEY = 'mathGameMuted';
+const LOCAL_STORAGE_USERS_KEY = 'mathGameUsers';
+const LOCAL_STORAGE_CURRENT_USER_KEY = 'mathGameCurrentUser';
+
+// User management functions
+function getUsers(): UsersMap {
+  const stored = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
+  if (!stored) return {};
+  try {
+    return JSON.parse(stored) as UsersMap;
+  } catch {
+    return {};
+  }
+}
+
+function saveUsers(users: UsersMap): void {
+  localStorage.setItem(LOCAL_STORAGE_USERS_KEY, JSON.stringify(users));
+}
+
+function getCurrentUserId(): string {
+  const users = getUsers();
+  const storedId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
+  if (storedId && users[storedId]) {
+    return storedId;
+  }
+  // Return first user ID if none selected or stored ID is invalid
+  const userIds = Object.keys(users);
+  return userIds.length > 0 ? userIds[0] : '';
+}
+
+function setCurrentUserId(id: string): void {
+  localStorage.setItem(LOCAL_STORAGE_CURRENT_USER_KEY, id);
+}
+
+function createUser(name: string): User {
+  const users = getUsers();
+  const id = `user_${Date.now()}`;
+  const newUser: User = {
+    id,
+    name,
+    createdAt: Date.now(),
+  };
+  users[id] = newUser;
+  saveUsers(users);
+  return newUser;
+}
+
+function deleteUser(id: string): boolean {
+  const users = getUsers();
+  const userIds = Object.keys(users);
+
+  // Prevent deletion of last user
+  if (userIds.length <= 1) {
+    return false;
+  }
+
+  if (!users[id]) {
+    return false;
+  }
+
+  delete users[id];
+  saveUsers(users);
+
+  // Clean up user's data from localStorage
+  localStorage.removeItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`);
+  localStorage.removeItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`);
+  localStorage.removeItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`);
+
+  // If we deleted the current user, switch to another user
+  const currentId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
+  if (currentId === id) {
+    const remainingIds = Object.keys(users);
+    if (remainingIds.length > 0) {
+      setCurrentUserId(remainingIds[0]);
+    }
+  }
+
+  return true;
+}
+
+function migrateToMultiUser(): void {
+  // Check if users already exist - skip migration if present
+  const existingUsers = getUsers();
+  if (Object.keys(existingUsers).length > 0) {
+    return;
+  }
+
+  // Read existing single-user data
+  const oldBestScore = localStorage.getItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+  const oldSessions = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
+  const oldProgress = localStorage.getItem(LOCAL_STORAGE_PROGRESS_KEY);
+
+  // Create "Player 1" user
+  const userId = `user_${Date.now()}`;
+  const player1: User = {
+    id: userId,
+    name: 'Player 1',
+    createdAt: Date.now(),
+  };
+
+  // Save the new user
+  const users: UsersMap = { [userId]: player1 };
+  saveUsers(users);
+  setCurrentUserId(userId);
+
+  // Migrate data to user-specific keys if old data exists
+  if (oldBestScore !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${userId}`, oldBestScore);
+  }
+  if (oldSessions !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${userId}`, oldSessions);
+  }
+  if (oldProgress !== null) {
+    localStorage.setItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${userId}`, oldProgress);
+  }
+
+  // Clear old single-user keys after successful migration
+  localStorage.removeItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_SESSIONS_KEY);
+  localStorage.removeItem(LOCAL_STORAGE_PROGRESS_KEY);
+}
 
 let gameStartTime: number = 0;
 let audioContext: AudioContext | null = null;
@@ -381,17 +501,23 @@ function checkLevelUp(): void {
   }
 }
 
-function getBestScore(): number {
-  const stored = localStorage.getItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+function getBestScore(userId?: string): number {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return 0;
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`);
   return stored ? parseInt(stored, 10) : 0;
 }
 
-function saveBestScore(score: number): void {
-  localStorage.setItem(LOCAL_STORAGE_BEST_SCORE_KEY, String(score));
+function saveBestScore(score: number, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  localStorage.setItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`, String(score));
 }
 
-function getSessions(): GameSession[] {
-  const stored = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
+function getSessions(userId?: string): GameSession[] {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return [];
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`);
   if (!stored) return [];
   try {
     return JSON.parse(stored) as GameSession[];
@@ -400,19 +526,30 @@ function getSessions(): GameSession[] {
   }
 }
 
-function saveSession(session: GameSession): void {
-  const sessions = getSessions();
+function saveSession(session: GameSession, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  const sessions = getSessions(id);
   sessions.push(session);
 
   if (sessions.length > MAX_SESSIONS) {
     sessions.shift();
   }
 
-  localStorage.setItem(LOCAL_STORAGE_SESSIONS_KEY, JSON.stringify(sessions));
+  localStorage.setItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`, JSON.stringify(sessions));
 }
 
-function getPlayerProgress(): PlayerProgress {
-  const stored = localStorage.getItem(LOCAL_STORAGE_PROGRESS_KEY);
+function getPlayerProgress(userId?: string): PlayerProgress {
+  const id = userId ?? getCurrentUserId();
+  if (!id) {
+    return {
+      totalGames: 0,
+      avgAccuracy: 0,
+      bestScore: 0,
+      recentSessions: [],
+    };
+  }
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`);
   if (!stored) {
     return {
       totalGames: 0,
@@ -433,8 +570,10 @@ function getPlayerProgress(): PlayerProgress {
   }
 }
 
-function updatePlayerProgress(session: GameSession): void {
-  const progress = getPlayerProgress();
+function updatePlayerProgress(session: GameSession, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  const progress = getPlayerProgress(id);
 
   progress.totalGames += 1;
 
@@ -442,14 +581,14 @@ function updatePlayerProgress(session: GameSession): void {
     progress.bestScore = session.score;
   }
 
-  const sessions = getSessions();
+  const sessions = getSessions(id);
   const validSessions = sessions.filter(s => typeof s.accuracy === 'number');
   const totalAccuracy = validSessions.reduce((sum, s) => sum + s.accuracy, 0);
   progress.avgAccuracy = validSessions.length > 0 ? Math.round(totalAccuracy / validSessions.length) : 0;
 
   progress.recentSessions = sessions.slice(-10);
 
-  localStorage.setItem(LOCAL_STORAGE_PROGRESS_KEY, JSON.stringify(progress));
+  localStorage.setItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`, JSON.stringify(progress));
 }
 
 function showMilestoneMessage(message: string): void {
@@ -746,6 +885,15 @@ function renderProgressDashboard(): void {
   const sessions = getSessions();
   const dayStreak = calculateDayStreak();
 
+  // Update header with current user's name
+  const usernameEl = document.getElementById('progress-username');
+  if (usernameEl) {
+    const users = getUsers();
+    const currentUserId = getCurrentUserId();
+    const currentUser = users[currentUserId];
+    usernameEl.textContent = currentUser ? currentUser.name : 'Player';
+  }
+
   const totalGamesEl = document.getElementById('stat-total-games');
   const accuracyEl = document.getElementById('stat-accuracy');
   const bestScoreEl = document.getElementById('stat-best-score');
@@ -814,23 +962,18 @@ function showStartScreen(): void {
   const gameArea = document.getElementById('game-area');
   const gameOverScreen = document.getElementById('game-over-screen');
   const progressScreen = document.getElementById('progress-screen');
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
 
   if (startScreen) startScreen.classList.remove('hidden');
   if (gameHeader) gameHeader.classList.add('hidden');
   if (gameArea) gameArea.classList.add('hidden');
   if (gameOverScreen) gameOverScreen.classList.add('hidden');
   if (progressScreen) progressScreen.classList.add('hidden');
+  if (leaderboardScreen) leaderboardScreen.classList.add('hidden');
 
-  const bestScore = getBestScore();
-  const bestScoreDisplay = document.getElementById('best-score-display');
-  const startBestScore = document.getElementById('start-best-score');
-
-  if (bestScore > 0 && bestScoreDisplay && startBestScore) {
-    startBestScore.textContent = String(bestScore);
-    bestScoreDisplay.classList.remove('hidden');
-  } else if (bestScoreDisplay) {
-    bestScoreDisplay.classList.add('hidden');
-  }
+  // Refresh user selector and best score for current user
+  populateUserSelector();
+  refreshStartScreenBestScore();
 }
 
 function hideStartScreen(): void {
@@ -873,7 +1016,263 @@ function setupStartScreenButtons(): void {
   }
 }
 
+function populateUserSelector(): void {
+  const dropdown = document.getElementById('user-dropdown') as HTMLSelectElement | null;
+  if (!dropdown) return;
+
+  const users = getUsers();
+  const currentUserId = getCurrentUserId();
+
+  dropdown.innerHTML = '';
+
+  Object.values(users).forEach(user => {
+    const option = document.createElement('option');
+    option.value = user.id;
+    option.textContent = user.name;
+    if (user.id === currentUserId) {
+      option.selected = true;
+    }
+    dropdown.appendChild(option);
+  });
+}
+
+function showCreateUserModal(): void {
+  const modal = document.getElementById('create-user-modal');
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+  if (modal) {
+    modal.classList.remove('hidden');
+    if (nameInput) {
+      nameInput.value = '';
+      nameInput.focus();
+    }
+  }
+}
+
+function hideCreateUserModal(): void {
+  const modal = document.getElementById('create-user-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function showDeleteConfirmModal(): void {
+  const modal = document.getElementById('delete-confirm-modal');
+  const confirmText = document.getElementById('delete-confirm-text');
+  const users = getUsers();
+  const currentUserId = getCurrentUserId();
+  const currentUser = users[currentUserId];
+
+  if (modal && confirmText && currentUser) {
+    confirmText.textContent = `Are you sure you want to delete "${currentUser.name}"? All progress will be lost.`;
+    modal.classList.remove('hidden');
+  }
+}
+
+function hideDeleteConfirmModal(): void {
+  const modal = document.getElementById('delete-confirm-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function handleCreateUser(): void {
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+  if (!nameInput) return;
+
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.focus();
+    return;
+  }
+
+  const newUser = createUser(name);
+  setCurrentUserId(newUser.id);
+  hideCreateUserModal();
+  populateUserSelector();
+  refreshStartScreenBestScore();
+}
+
+function handleDeleteUser(): void {
+  const currentUserId = getCurrentUserId();
+  const deleted = deleteUser(currentUserId);
+
+  if (deleted) {
+    hideDeleteConfirmModal();
+    populateUserSelector();
+    refreshStartScreenBestScore();
+  }
+}
+
+interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  bestScore: number;
+}
+
+function getLeaderboardData(): LeaderboardEntry[] {
+  const users = getUsers();
+  const entries: LeaderboardEntry[] = [];
+
+  Object.values(users).forEach(user => {
+    const bestScore = getBestScore(user.id);
+    entries.push({
+      userId: user.id,
+      name: user.name,
+      bestScore,
+    });
+  });
+
+  // Sort by best score descending
+  entries.sort((a, b) => b.bestScore - a.bestScore);
+
+  return entries;
+}
+
+function renderLeaderboard(): void {
+  const leaderboardList = document.getElementById('leaderboard-list');
+  if (!leaderboardList) return;
+
+  const entries = getLeaderboardData();
+  leaderboardList.innerHTML = '';
+
+  if (entries.length === 0) {
+    leaderboardList.innerHTML = '<p class="no-leaderboard">No players yet</p>';
+    return;
+  }
+
+  entries.forEach((entry, index) => {
+    const rank = index + 1;
+    const rowEl = document.createElement('div');
+    rowEl.className = 'leaderboard-row';
+
+    if (rank === 1) rowEl.classList.add('rank-1');
+    else if (rank === 2) rowEl.classList.add('rank-2');
+    else if (rank === 3) rowEl.classList.add('rank-3');
+
+    const rankSpan = document.createElement('span');
+    rankSpan.className = 'leaderboard-rank';
+    rankSpan.textContent = `#${rank}`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'leaderboard-name';
+    nameSpan.textContent = entry.name;
+
+    const scoreSpan = document.createElement('span');
+    scoreSpan.className = 'leaderboard-score';
+    scoreSpan.textContent = String(entry.bestScore);
+
+    rowEl.appendChild(rankSpan);
+    rowEl.appendChild(nameSpan);
+    rowEl.appendChild(scoreSpan);
+    leaderboardList.appendChild(rowEl);
+  });
+}
+
+function showLeaderboard(): void {
+  const startScreen = document.getElementById('start-screen');
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
+
+  renderLeaderboard();
+  if (startScreen) startScreen.classList.add('hidden');
+  if (leaderboardScreen) leaderboardScreen.classList.remove('hidden');
+}
+
+function hideLeaderboard(): void {
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
+  if (leaderboardScreen) leaderboardScreen.classList.add('hidden');
+}
+
+function refreshStartScreenBestScore(): void {
+  const bestScore = getBestScore();
+  const bestScoreDisplay = document.getElementById('best-score-display');
+  const startBestScore = document.getElementById('start-best-score');
+
+  if (bestScore > 0 && bestScoreDisplay && startBestScore) {
+    startBestScore.textContent = String(bestScore);
+    bestScoreDisplay.classList.remove('hidden');
+  } else if (bestScoreDisplay) {
+    bestScoreDisplay.classList.add('hidden');
+  }
+}
+
+function setupLeaderboard(): void {
+  const leaderboardBtn = document.getElementById('start-leaderboard-btn');
+  const backBtn = document.getElementById('leaderboard-back-btn');
+
+  if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', showLeaderboard);
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      hideLeaderboard();
+      showStartScreen();
+    });
+  }
+}
+
+function setupUserSelector(): void {
+  const dropdown = document.getElementById('user-dropdown') as HTMLSelectElement | null;
+  const newUserBtn = document.getElementById('new-user-btn');
+  const deleteUserBtn = document.getElementById('delete-user-btn');
+  const createConfirmBtn = document.getElementById('create-user-confirm-btn');
+  const createCancelBtn = document.getElementById('create-user-cancel-btn');
+  const deleteConfirmBtn = document.getElementById('delete-user-confirm-btn');
+  const deleteCancelBtn = document.getElementById('delete-user-cancel-btn');
+  const nameInput = document.getElementById('new-user-name') as HTMLInputElement | null;
+
+  // User selector change
+  if (dropdown) {
+    dropdown.addEventListener('change', () => {
+      setCurrentUserId(dropdown.value);
+      refreshStartScreenBestScore();
+    });
+  }
+
+  // New User button
+  if (newUserBtn) {
+    newUserBtn.addEventListener('click', showCreateUserModal);
+  }
+
+  // Delete User button
+  if (deleteUserBtn) {
+    deleteUserBtn.addEventListener('click', () => {
+      const users = getUsers();
+      if (Object.keys(users).length <= 1) {
+        return; // Can't delete the last user
+      }
+      showDeleteConfirmModal();
+    });
+  }
+
+  // Create modal - Create button
+  if (createConfirmBtn) {
+    createConfirmBtn.addEventListener('click', handleCreateUser);
+  }
+
+  // Create modal - Cancel button
+  if (createCancelBtn) {
+    createCancelBtn.addEventListener('click', hideCreateUserModal);
+  }
+
+  // Create modal - Enter key on input
+  if (nameInput) {
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        handleCreateUser();
+      }
+    });
+  }
+
+  // Delete modal - Delete button
+  if (deleteConfirmBtn) {
+    deleteConfirmBtn.addEventListener('click', handleDeleteUser);
+  }
+
+  // Delete modal - Cancel button
+  if (deleteCancelBtn) {
+    deleteCancelBtn.addEventListener('click', hideDeleteConfirmModal);
+  }
+}
+
 function initGame(): void {
+  migrateToMultiUser();
   initAudio();
   setupAnswerButtons();
   setupPlayAgainButton();
@@ -881,6 +1280,9 @@ function initGame(): void {
   setupBackToGameButton();
   setupMuteButton();
   setupStartScreenButtons();
+  setupUserSelector();
+  setupLeaderboard();
+  populateUserSelector();
   showStartScreen();
   console.log('Math Speed Challenge initialized');
 }
