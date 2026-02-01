@@ -137,15 +137,15 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Add "Leaderboard" button to start-screen
-- [ ] Add `leaderboard-screen` div (hidden by default) with title, list container, and Back button
-- [ ] Style leaderboard to match existing game UI (rank, username, score columns)
-- [ ] Add `getLeaderboardData()` function (load all users with best scores, sort descending)
-- [ ] Add `renderLeaderboard()` function (populate list with rank, name, score)
-- [ ] Add `showLeaderboard()` and `hideLeaderboard()` functions
-- [ ] Wire up Leaderboard button and Back button
-- [ ] Run `npm run typecheck` - must pass
-- [ ] Verify leaderboard displays correctly in browser
+- [x] Add "Leaderboard" button to start-screen
+- [x] Add `leaderboard-screen` div (hidden by default) with title, list container, and Back button
+- [x] Style leaderboard to match existing game UI (rank, username, score columns)
+- [x] Add `getLeaderboardData()` function (load all users with best scores, sort descending)
+- [x] Add `renderLeaderboard()` function (populate list with rank, name, score)
+- [x] Add `showLeaderboard()` and `hideLeaderboard()` functions
+- [x] Wire up Leaderboard button and Back button
+- [x] Run `npm run typecheck` - must pass
+- [x] Verify leaderboard displays correctly in browser
 
 ---
 

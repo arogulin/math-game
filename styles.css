@@ -122,6 +122,31 @@ body {
   transform: scale(0.98);
 }
 
+#start-leaderboard-btn {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  margin: 15px auto 0 auto;
+  padding: 15px 30px;
+  font-size: 1.3rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  background: #ed8936;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#start-leaderboard-btn:hover {
+  transform: scale(1.05);
+  background: #dd6b20;
+}
+
+#start-leaderboard-btn:active {
+  transform: scale(0.98);
+}
+
 /* User selector */
 #user-selector {
   margin-bottom: 25px;
@@ -763,6 +788,107 @@ body {
   font-style: italic;
   text-align: center;
   padding: 20px;
+}
+
+/* Leaderboard screen */
+#leaderboard-screen {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+#leaderboard-screen h2 {
+  font-size: 2rem;
+  color: #2d3748;
+  margin-bottom: 25px;
+}
+
+#leaderboard-list {
+  max-height: 350px;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.leaderboard-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: #f7fafc;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.leaderboard-row.rank-1 {
+  background: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
+  color: #333;
+}
+
+.leaderboard-row.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
+  color: #333;
+}
+
+.leaderboard-row.rank-3 {
+  background: linear-gradient(135deg, #cd7f32 0%, #a05a2c 100%);
+  color: white;
+}
+
+.leaderboard-rank {
+  font-weight: bold;
+  font-size: 1.3rem;
+  min-width: 40px;
+  text-align: left;
+}
+
+.leaderboard-name {
+  flex: 1;
+  text-align: left;
+  margin-left: 10px;
+  font-weight: bold;
+}
+
+.leaderboard-score {
+  font-weight: bold;
+  color: #667eea;
+  min-width: 80px;
+  text-align: right;
+}
+
+.leaderboard-row.rank-1 .leaderboard-score,
+.leaderboard-row.rank-2 .leaderboard-score,
+.leaderboard-row.rank-3 .leaderboard-score {
+  color: inherit;
+}
+
+.no-leaderboard {
+  color: #a0aec0;
+  font-style: italic;
+  text-align: center;
+  padding: 30px;
+  font-size: 1.1rem;
+}
+
+#leaderboard-back-btn {
+  margin-top: 20px;
+  padding: 12px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  background: #667eea;
+  color: white;
+  transition: transform 0.1s, background 0.2s;
+}
+
+#leaderboard-back-btn:hover {
+  transform: scale(1.05);
+  background: #5a67d8;
+}
+
+#leaderboard-back-btn:active {
+  transform: scale(0.98);
 }
 
 /* Responsive design for tablets (768px+) and desktop */

@@ -951,12 +951,14 @@ function showStartScreen(): void {
   const gameArea = document.getElementById('game-area');
   const gameOverScreen = document.getElementById('game-over-screen');
   const progressScreen = document.getElementById('progress-screen');
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
 
   if (startScreen) startScreen.classList.remove('hidden');
   if (gameHeader) gameHeader.classList.add('hidden');
   if (gameArea) gameArea.classList.add('hidden');
   if (gameOverScreen) gameOverScreen.classList.add('hidden');
   if (progressScreen) progressScreen.classList.add('hidden');
+  if (leaderboardScreen) leaderboardScreen.classList.add('hidden');
 
   // Refresh user selector and best score for current user
   populateUserSelector();
@@ -1086,6 +1088,75 @@ function handleDeleteUser(): void {
   }
 }
 
+interface LeaderboardEntry {
+  userId: string;
+  name: string;
+  bestScore: number;
+}
+
+function getLeaderboardData(): LeaderboardEntry[] {
+  const users = getUsers();
+  const entries: LeaderboardEntry[] = [];
+
+  Object.values(users).forEach(user => {
+    const bestScore = getBestScore(user.id);
+    entries.push({
+      userId: user.id,
+      name: user.name,
+      bestScore,
+    });
+  });
+
+  // Sort by best score descending
+  entries.sort((a, b) => b.bestScore - a.bestScore);
+
+  return entries;
+}
+
+function renderLeaderboard(): void {
+  const leaderboardList = document.getElementById('leaderboard-list');
+  if (!leaderboardList) return;
+
+  const entries = getLeaderboardData();
+  leaderboardList.innerHTML = '';
+
+  if (entries.length === 0) {
+    leaderboardList.innerHTML = '<p class="no-leaderboard">No players yet</p>';
+    return;
+  }
+
+  entries.forEach((entry, index) => {
+    const rank = index + 1;
+    const rowEl = document.createElement('div');
+    rowEl.className = 'leaderboard-row';
+
+    if (rank === 1) rowEl.classList.add('rank-1');
+    else if (rank === 2) rowEl.classList.add('rank-2');
+    else if (rank === 3) rowEl.classList.add('rank-3');
+
+    rowEl.innerHTML = `
+      <span class="leaderboard-rank">#${rank}</span>
+      <span class="leaderboard-name">${entry.name}</span>
+      <span class="leaderboard-score">${entry.bestScore}</span>
+    `;
+    leaderboardList.appendChild(rowEl);
+  });
+}
+
+function showLeaderboard(): void {
+  const startScreen = document.getElementById('start-screen');
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
+
+  renderLeaderboard();
+  if (startScreen) startScreen.classList.add('hidden');
+  if (leaderboardScreen) leaderboardScreen.classList.remove('hidden');
+}
+
+function hideLeaderboard(): void {
+  const leaderboardScreen = document.getElementById('leaderboard-screen');
+  if (leaderboardScreen) leaderboardScreen.classList.add('hidden');
+}
+
 function refreshStartScreenBestScore(): void {
   const bestScore = getBestScore();
   const bestScoreDisplay = document.getElementById('best-score-display');
@@ -1096,6 +1167,22 @@ function refreshStartScreenBestScore(): void {
     bestScoreDisplay.classList.remove('hidden');
   } else if (bestScoreDisplay) {
     bestScoreDisplay.classList.add('hidden');
+  }
+}
+
+function setupLeaderboard(): void {
+  const leaderboardBtn = document.getElementById('start-leaderboard-btn');
+  const backBtn = document.getElementById('leaderboard-back-btn');
+
+  if (leaderboardBtn) {
+    leaderboardBtn.addEventListener('click', showLeaderboard);
+  }
+
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      hideLeaderboard();
+      showStartScreen();
+    });
   }
 }
 
@@ -1173,6 +1260,7 @@ function initGame(): void {
   setupMuteButton();
   setupStartScreenButtons();
   setupUserSelector();
+  setupLeaderboard();
   populateUserSelector();
   showStartScreen();
   console.log('Math Speed Challenge initialized');
