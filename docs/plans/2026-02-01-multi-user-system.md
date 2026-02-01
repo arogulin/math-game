@@ -78,15 +78,15 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Modify `getBestScore()` to use `mathGameBestScore_[userId]` format
-- [ ] Modify `saveBestScore()` to use user-specific key
-- [ ] Modify `getSessions()` to use `mathGameSessions_[userId]` format
-- [ ] Modify `saveSession()` to use user-specific key
-- [ ] Modify `getPlayerProgress()` to use `mathGameProgress_[userId]` format
-- [ ] Modify `updatePlayerProgress()` to use user-specific key
-- [ ] Update all callers to use `getCurrentUserId()`
-- [ ] Run `npm run typecheck` - must pass
-- [ ] Verify existing game flow still works in browser
+- [x] Modify `getBestScore()` to use `mathGameBestScore_[userId]` format
+- [x] Modify `saveBestScore()` to use user-specific key
+- [x] Modify `getSessions()` to use `mathGameSessions_[userId]` format
+- [x] Modify `saveSession()` to use user-specific key
+- [x] Modify `getPlayerProgress()` to use `mathGameProgress_[userId]` format
+- [x] Modify `updatePlayerProgress()` to use user-specific key
+- [x] Update all callers to use `getCurrentUserId()`
+- [x] Run `npm run typecheck` - must pass
+- [x] Verify existing game flow still works in browser
 
 ---
 

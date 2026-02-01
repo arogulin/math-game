@@ -499,17 +499,23 @@ function checkLevelUp(): void {
   }
 }
 
-function getBestScore(): number {
-  const stored = localStorage.getItem(LOCAL_STORAGE_BEST_SCORE_KEY);
+function getBestScore(userId?: string): number {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return 0;
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`);
   return stored ? parseInt(stored, 10) : 0;
 }
 
-function saveBestScore(score: number): void {
-  localStorage.setItem(LOCAL_STORAGE_BEST_SCORE_KEY, String(score));
+function saveBestScore(score: number, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  localStorage.setItem(`${LOCAL_STORAGE_BEST_SCORE_KEY}_${id}`, String(score));
 }
 
-function getSessions(): GameSession[] {
-  const stored = localStorage.getItem(LOCAL_STORAGE_SESSIONS_KEY);
+function getSessions(userId?: string): GameSession[] {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return [];
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`);
   if (!stored) return [];
   try {
     return JSON.parse(stored) as GameSession[];
@@ -518,19 +524,30 @@ function getSessions(): GameSession[] {
   }
 }
 
-function saveSession(session: GameSession): void {
-  const sessions = getSessions();
+function saveSession(session: GameSession, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  const sessions = getSessions(id);
   sessions.push(session);
 
   if (sessions.length > MAX_SESSIONS) {
     sessions.shift();
   }
 
-  localStorage.setItem(LOCAL_STORAGE_SESSIONS_KEY, JSON.stringify(sessions));
+  localStorage.setItem(`${LOCAL_STORAGE_SESSIONS_KEY}_${id}`, JSON.stringify(sessions));
 }
 
-function getPlayerProgress(): PlayerProgress {
-  const stored = localStorage.getItem(LOCAL_STORAGE_PROGRESS_KEY);
+function getPlayerProgress(userId?: string): PlayerProgress {
+  const id = userId ?? getCurrentUserId();
+  if (!id) {
+    return {
+      totalGames: 0,
+      avgAccuracy: 0,
+      bestScore: 0,
+      recentSessions: [],
+    };
+  }
+  const stored = localStorage.getItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`);
   if (!stored) {
     return {
       totalGames: 0,
@@ -551,8 +568,10 @@ function getPlayerProgress(): PlayerProgress {
   }
 }
 
-function updatePlayerProgress(session: GameSession): void {
-  const progress = getPlayerProgress();
+function updatePlayerProgress(session: GameSession, userId?: string): void {
+  const id = userId ?? getCurrentUserId();
+  if (!id) return;
+  const progress = getPlayerProgress(id);
 
   progress.totalGames += 1;
 
@@ -560,14 +579,14 @@ function updatePlayerProgress(session: GameSession): void {
     progress.bestScore = session.score;
   }
 
-  const sessions = getSessions();
+  const sessions = getSessions(id);
   const validSessions = sessions.filter(s => typeof s.accuracy === 'number');
   const totalAccuracy = validSessions.reduce((sum, s) => sum + s.accuracy, 0);
   progress.avgAccuracy = validSessions.length > 0 ? Math.round(totalAccuracy / validSessions.length) : 0;
 
   progress.recentSessions = sessions.slice(-10);
 
-  localStorage.setItem(LOCAL_STORAGE_PROGRESS_KEY, JSON.stringify(progress));
+  localStorage.setItem(`${LOCAL_STORAGE_PROGRESS_KEY}_${id}`, JSON.stringify(progress));
 }
 
 function showMilestoneMessage(message: string): void {
