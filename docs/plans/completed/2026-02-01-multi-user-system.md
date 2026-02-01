@@ -178,4 +178,4 @@ Add multi-user system to the math game, enabling multiple players to have separa
 
 ## Post-Implementation
 
-- [ ] Move this plan to `docs/plans/completed/`
+- [x] Move this plan to `docs/plans/completed/`
