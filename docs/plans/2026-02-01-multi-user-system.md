@@ -45,13 +45,13 @@ Add multi-user system to the math game, enabling multiple players to have separa
 - Modify: `src/main.ts`
 
 **Steps:**
-- [ ] Add `getUsers()` function to load UsersMap from localStorage
-- [ ] Add `saveUsers(users: UsersMap)` function
-- [ ] Add `getCurrentUserId()` function (returns first user ID if none selected)
-- [ ] Add `setCurrentUserId(id: string)` function
-- [ ] Add `createUser(name: string)` function (generates `user_timestamp` ID)
-- [ ] Add `deleteUser(id: string)` function (prevents deletion of last user)
-- [ ] Run `npm run typecheck` - must pass
+- [x] Add `getUsers()` function to load UsersMap from localStorage
+- [x] Add `saveUsers(users: UsersMap)` function
+- [x] Add `getCurrentUserId()` function (returns first user ID if none selected)
+- [x] Add `setCurrentUserId(id: string)` function
+- [x] Add `createUser(name: string)` function (generates `user_timestamp` ID)
+- [x] Add `deleteUser(id: string)` function (prevents deletion of last user)
+- [x] Run `npm run typecheck` - must pass
 
 ---
 

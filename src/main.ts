@@ -1,4 +1,4 @@
-import { GameState, GameSession, PlayerProgress, Problem } from './types';
+import { GameState, GameSession, PlayerProgress, Problem, User, UsersMap } from './types';
 
 const initialGameState: GameState = {
   score: 0,
@@ -54,6 +54,80 @@ const MAX_SESSIONS = 50;
 const LOCAL_STORAGE_MUTE_KEY = 'mathGameMuted';
 const LOCAL_STORAGE_USERS_KEY = 'mathGameUsers';
 const LOCAL_STORAGE_CURRENT_USER_KEY = 'mathGameCurrentUser';
+
+// User management functions
+function getUsers(): UsersMap {
+  const stored = localStorage.getItem(LOCAL_STORAGE_USERS_KEY);
+  if (!stored) return {};
+  try {
+    return JSON.parse(stored) as UsersMap;
+  } catch {
+    return {};
+  }
+}
+
+function saveUsers(users: UsersMap): void {
+  localStorage.setItem(LOCAL_STORAGE_USERS_KEY, JSON.stringify(users));
+}
+
+function getCurrentUserId(): string {
+  const storedId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
+  if (storedId) {
+    const users = getUsers();
+    if (users[storedId]) {
+      return storedId;
+    }
+  }
+  // Return first user ID if none selected or stored ID is invalid
+  const users = getUsers();
+  const userIds = Object.keys(users);
+  return userIds.length > 0 ? userIds[0] : '';
+}
+
+function setCurrentUserId(id: string): void {
+  localStorage.setItem(LOCAL_STORAGE_CURRENT_USER_KEY, id);
+}
+
+function createUser(name: string): User {
+  const users = getUsers();
+  const id = `user_${Date.now()}`;
+  const newUser: User = {
+    id,
+    name,
+    createdAt: Date.now(),
+  };
+  users[id] = newUser;
+  saveUsers(users);
+  return newUser;
+}
+
+function deleteUser(id: string): boolean {
+  const users = getUsers();
+  const userIds = Object.keys(users);
+
+  // Prevent deletion of last user
+  if (userIds.length <= 1) {
+    return false;
+  }
+
+  if (!users[id]) {
+    return false;
+  }
+
+  delete users[id];
+  saveUsers(users);
+
+  // If we deleted the current user, switch to another user
+  const currentId = localStorage.getItem(LOCAL_STORAGE_CURRENT_USER_KEY);
+  if (currentId === id) {
+    const remainingIds = Object.keys(users);
+    if (remainingIds.length > 0) {
+      setCurrentUserId(remainingIds[0]);
+    }
+  }
+
+  return true;
+}
 
 let gameStartTime: number = 0;
 let audioContext: AudioContext | null = null;
